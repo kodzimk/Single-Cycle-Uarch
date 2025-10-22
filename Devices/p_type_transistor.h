@@ -1,25 +1,34 @@
 #include<stdio.h>
+#include<stdlib.h>
 
 typedef struct 
 {
     int connected : 1;
-    float gate;
     int source : 1;
     int drain : 1;
+    void* next;
 }ptrans_t;
 
-void ptrans_connect(ptrans_t* t, float input)
+ptrans_t* ptrans_init()
 {
-    if(input== 0.0f)
-    {
-        t->connected = 1;
-    }
+    ptrans_t* ptrans = (ptrans_t*)malloc(sizeof(ptrans_t));
+    ptrans->connected = 0;
+    ptrans->drain = 0;
+    ptrans->next = NULL;
+    ptrans->source = 0;
+    return ptrans;
 }
 
-void ntrans_set(ptrans_t* t,int value)
+void ptrans_free(ptrans_t* ptrans)
 {
-    if(t->connected)
+    free(ptrans->next);
+    free(ptrans);
+}
+
+void ptrans_connect(ptrans_t* t, int input)
+{
+    if(input == 0)
     {
-        t->source = value;  
+        t->connected = 1;
     }
 }
