@@ -1,0 +1,2 @@
+I used a Mips ISA and implemented my proccesor by this Isa.
+You can see instruction encoding and etc.
