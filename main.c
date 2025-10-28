@@ -1,9 +1,7 @@
-#include"VonNeumanModel/alu.h"
-#include<stdio.h>
+#include"SingleCycleProcessorEmulation/uArch.h"
 
 int main()
 {
-     fullAdder(3,2,0);
-
+    store_program("SingleCycleProcessorEmulation/example/add.asm");
     return 0;
 }

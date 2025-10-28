@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -g
-TARGET = computer
+TARGET = uArch
 
 all: $(TARGET)
 
 $(TARGET): main.c
-	$(CC) $(CFLAGS) -o  $(TARGET) VonNeumanModel/alu.h main.c
+	$(CC) $(CFLAGS) -o  $(TARGET) SingleCycleProcessorEmulation/uArch.h main.c
 
 clean:
 	rm -f $(TARGET)
