@@ -5,22 +5,6 @@
 
 #define INST_MEMORY_CAPACITY 256
 
-uint32_t from_text_to_binary(char inst[32])
-{
-    uint32_t binary = 0;
-    for(int i = 0; i < 32;i++)
-    {
-        uint32_t temp = 0;
-        temp = temp << (30 - i);
-        temp = temp | (inst[i] - '0');
-        binary = binary | temp;
-    
-    }
-
-    printf("%d\n",binary);
-    return binary;
-}
-
 typedef enum {
     R_TYPE,
     I_TYPE,
@@ -28,51 +12,12 @@ typedef enum {
 }INST_TYPE;
 
 
-uint32_t* pc = NULL;
+uint32_t pc;
 uint32_t inst_memory[INST_MEMORY_CAPACITY];
-
-uint32_t encode_inst(char inst[32],char* opcode,INST_TYPE type,uint8_t startOperand);
 
 void store_program(const char* file_name);
 void inst_proccess_cycle();
 
-
-uint32_t encode_inst(char inst[32],char* opcode,INST_TYPE type,uint8_t startOperand)
-{
-    uint32_t encoded_inst = 0;
-    int r = 0;
-
-    if(type == R_TYPE)
-    {
-        char trimS = ',';
-        uint8_t curS = startOperand;
-        while(inst[curS] != '\n' && inst[curS] != '\0' && r != 3)
-        {
-            char* operand = (char*)calloc(32,sizeof(char));
-            while(inst[curS] != trimS)
-            {
-                operand[curS] = inst[curS];
-                curS++;
-            }
-            curS++;
-
-            if(r == 0)
-            {
-                
-            }
-            else if(r == 1)
-            {
-                encoded_inst += operand[1] - '0';
-                encoded_inst = encoded_inst << 21;
-            }
-
-            r++;
-
-        }
-    }
-
-    return encode_inst;
-}
 
 void store_program(const char* file_name)
 {
@@ -102,15 +47,87 @@ void store_program(const char* file_name)
         }
         
         free(inst_op);*/
-        printf("%s\n",inst);
-        inst_memory[0] = 0b0 + atoi(inst);
-        pc = &inst_memory;
+        
+        inst_memory[0] = strtol(inst, NULL, 2);;
+        pc = 0;
+    }
+}
+
+typedef struct 
+{
+    uint8_t MemToReq : 1;
+    uint8_t MemWrite : 1;
+    uint8_t Branch : 1;
+    uint8_t ALUControl: 3;
+    uint8_t ALUSrc : 1;
+    uint8_t RegDst : 1;
+    uint8_t RegWrite: 1;
+}control_unit;
+
+typedef struct 
+{
+   uint32_t func;
+   INST_TYPE type;
+}inst_t;
+
+
+
+uint32_t get_bit(uint32_t number, int bit_position) {
+    return (number >> bit_position) & 1;
+}
+
+inst_t decode_inst_op(uint32_t inst)
+{
+    inst_t t;
+    uint32_t temp = 0;
+    for(int i = 25;i <= 32;i++)
+    {
+            temp += pow(2,i - 25) * get_bit(inst,i);
+    }
+    t.type = I_TYPE;
+
+    if(temp == 0)
+    {
+     for(int i = 0;i <= 5 ;i++)
+     {
+            temp += pow(2,i) * get_bit(inst,i);
+     }
+     t.type = R_TYPE;
+    }
+    
+    t.func = temp;
+    return t;
+}
+
+control_unit decode_inst(uint32_t inst)
+{
+    control_unit control;
+    inst_t opcode = decode_inst_op(inst);
+    
+    if(opcode.type == R_TYPE)
+    {
+        if(opcode.func == 32)
+        {
+         control.Branch = 0;
+         control.ALUControl = 3;
+         control.ALUSrc = 0;
+         control.MemWrite = 0;
+         control.RegWrite = 1;
+         control.RegDst = 0;
+         control.MemToReq = 0;
+        }
     }
 
+    return control;
 }
 
 
 void inst_proccess_cycle()
 {
-
+    while(inst_memory[pc] != 0)
+    {
+        uint32_t ir = inst_memory[pc];
+        pc++;
+        control_unit control = decode_inst(ir);
+    }
 }
