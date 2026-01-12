@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -g
-TARGET = uArch
+CFLAGS=-Wall -Wextra -Wswitch-enum -Wconversion -std=c11 -pedantic 
 
-all: $(TARGET)
+.PHONY: all
+all: kodt
 
-$(TARGET): main.c
-	$(CC) $(CFLAGS) -o  $(TARGET) SingleCycleProcessorEmulation/uArch.h main.c
+kodt: kodt.c ./src/kodt.h
+	$(CC) $(CFLAGS) -o kodt kodt.c $(LIBS)
 
 clean:
 	rm -f $(TARGET)

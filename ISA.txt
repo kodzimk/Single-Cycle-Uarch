@@ -1,0 +1,13 @@
+I used a Mips ISA and implemented my proccesor by this Isa.
+You can see instruction encoding and etc.
+
+I-Instruction Type
+
+32-bit 6-bits for instr 5-bits for register 21 bits for immidate value
+addi $s0, 100
+add $s0, $s1
+subi $t0, 150
+jmp
+brz
+
+addi - 000001
