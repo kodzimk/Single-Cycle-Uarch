@@ -1,3 +1,6 @@
+#ifndef SV_H_
+#define SV_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -90,3 +93,5 @@ bool sv_eq(String_View a, String_View b)
         return memcmp(a.data, b.data, a.count) == 0;
     }
 }
+
+#endif // STRING VIEW IMPLEMENTATION
