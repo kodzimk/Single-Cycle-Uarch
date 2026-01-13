@@ -1,14 +1,17 @@
 #ifndef KODT_H_
 #define KODT_H_
 
-#include"sv.h"
+#include "sv.h"
+#include "err.h"
+
 #define SV_H_
+#define ERR_H_
 
 #define INST_LENGTH 255
 #define INST_BITS 32
 #define IMMIDIATE_BIT_COUNT 21
 
-void translate_file(const char* file_name);
+Err translate_file(const char* file_name);
 void insert_text(char* array, const char* text, int start, int end);
 
 char* decode_instruction(String_View inst);
@@ -105,7 +108,7 @@ FILE* open_file(const char* file_name)
    return file;
 }
 
-void translate_file(const char* file_name)
+Err translate_file(const char* file_name)
 {
     FILE* reading_file = load_file(file_name);
     FILE* writing_file = open_file("temp.dasm");
@@ -119,6 +122,8 @@ void translate_file(const char* file_name)
   
     fclose(reading_file);
     fclose(writing_file);
+
+    return ERR_OK;
 }
 
 #endif // KODT IMPLEMENTATION
