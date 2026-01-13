@@ -1,5 +1,6 @@
 I used a Mips ISA and implemented my proccesor by this Isa.
 You can see instruction encoding and etc.
+This cpu doesnt have fsm(finite state machine) and clock times for now and a lot of missing parts,since i am doign evertying regresivelly
 
 I-Instruction Type
 
@@ -11,3 +12,4 @@ jmp
 brz
 
 addi - 000001
+

@@ -9,6 +9,8 @@ typedef enum {
     ERR_SYNTAX_ERROR,
     ERR_UNKOWN_REGISTER,
     ERR_IMMIDIATE_OVERFLOW,
+    ERR_UNKOWN_OPCODE,
+    ERR_RUNTIME_ERROR,
 } Err;
 
 const char *err_as_cstr(Err err);
@@ -24,6 +26,10 @@ const char *err_as_cstr(Err err)
         return "ERR_UNKOWN_REGISTER";
     case ERR_IMMIDIATE_OVERFLOW:
         return "ERR_IMMIDIATE_OVERFLOW";
+    case ERR_UNKOWN_OPCODE:
+        return "ERR_UNKOWN_OPCODE";
+    case ERR_RUNTIME_ERROR:
+        return "ERR_RUNTIME_ERROR";
 
     default:
         assert(false && "err_as_cstr: Unreachable");

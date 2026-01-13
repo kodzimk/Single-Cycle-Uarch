@@ -10,13 +10,26 @@
 #define INST_LENGTH 255
 #define INST_BITS 32
 #define IMMIDIATE_BIT_COUNT 21
+#define IMMIDIATE_MAX_VALUE 2097151
 
-Err translate_file(const char* file_name);
+typedef struct 
+{
+    char* data;
+    Err err;
+}ret_t;
+
+typedef struct
+{
+    Err error;
+    int codeRow;
+}err_t;
+
+err_t translate_file(const char* reading_file_path,const char* writing_file_path);
 void insert_text(char* array, const char* text, int start, int end);
 
-char* decode_instruction(String_View inst);
-char* decode_immidiate(String_View immidiate);
-const char* decode_reg(String_View reg);
+Err decode_instruction(String_View inst, FILE* file);
+ret_t decode_immidiate(String_View immidiate);
+ret_t decode_reg(String_View reg);
 
 FILE* load_file(const char* file_name);
 FILE* open_file(const char* file_name);
@@ -29,22 +42,29 @@ void insert_text(char* array, const char* text, int start, int end)
     } 
 }
 
-const char* decode_reg(String_View reg)
+ret_t decode_reg(String_View reg)
 {
     if(sv_eq(reg,sv_from_cstr("$s0")))
     {
-        return "00000";
+        return (ret_t) {.data = "00000",.err = ERR_OK};
     }
 
-    return "";
+    return (ret_t) {.data = NULL,.err = ERR_UNKOWN_REGISTER};
 }
 
-char* decode_immidiate(String_View immidiate)
+ret_t decode_immidiate(String_View immidiate)
 {
     char* decoded_immidiate = (char*)malloc(sizeof(char) * IMMIDIATE_BIT_COUNT);
-    int value = atoi(immidiate.data);
+    memset(decoded_immidiate,'0',sizeof(char) * IMMIDIATE_BIT_COUNT);
+
     int index = 0;
-    
+    int value = atoi(immidiate.data);
+
+    if(value > IMMIDIATE_MAX_VALUE)
+    {
+       return (ret_t) {.data = NULL, .err = ERR_IMMIDIATE_OVERFLOW};
+    }
+
     while(value > 0)
     {
         decoded_immidiate[index] = (value % 2) + '0';
@@ -53,15 +73,10 @@ char* decode_immidiate(String_View immidiate)
         value /= 2;
     }
 
-    for(int i = index;i < 21;i++)
-    {
-        decoded_immidiate[i] = '0';
-    }
-
-    return decoded_immidiate;
+    return (ret_t) {.data = decoded_immidiate, .err = ERR_OK};
 }
 
-char* decode_instruction(String_View inst)
+Err decode_instruction(String_View inst, FILE* file)
 {
     inst = sv_trim(inst);
 
@@ -73,23 +88,37 @@ char* decode_instruction(String_View inst)
         String_View reg = sv_trim(sv_chop_by_delim(&inst,',')); 
         inst = sv_trim(inst);
 
-        char* decoded_immidiate = decode_immidiate(inst);
+        ret_t decoded_immidiate = decode_immidiate(inst);
+        ret_t decoded_reg = decode_reg(reg);
+
+        if(decoded_immidiate.err != ERR_OK)
+           return decoded_immidiate.err;
+        else if(decoded_reg.err != ERR_OK)
+           return decoded_reg.err;
 
         insert_text(decoded_inst,"000001",0,6);
-        insert_text(decoded_inst, decode_reg(reg),6,11);
-        insert_text(decoded_inst, decoded_immidiate, 11,32);
+        insert_text(decoded_inst, decoded_reg.data,6,11);
+        insert_text(decoded_inst, decoded_immidiate.data, 11,32);
             
-        free(decoded_immidiate);
+        free(decoded_immidiate.data);
+    }
+    else
+    {
+        free(decoded_inst);
+        return ERR_UNKOWN_OPCODE;
     }
 
-    return decoded_inst;
+
+    fputs(decoded_inst,file);
+    fputc('\n',file);
+    free(decoded_inst);
+
+    return ERR_OK;
 }
 
 FILE* load_file(const char* file_name)
 {
     FILE *file;
-    char inst[INST_LENGTH];
-
     file = fopen(file_name, "r");
 
      if (file == NULL) {
@@ -108,22 +137,29 @@ FILE* open_file(const char* file_name)
    return file;
 }
 
-Err translate_file(const char* file_name)
+err_t translate_file(const char* reading_file_path,const char* writing_file_path)
 {
-    FILE* reading_file = load_file(file_name);
-    FILE* writing_file = open_file("temp.dasm");
+    FILE* reading_file = load_file(reading_file_path);
+    FILE* writing_file = open_file(writing_file_path);
     char inst[INST_LENGTH];
+    int codeRow = 1;
 
     while(fgets(inst, INST_LENGTH, reading_file)) {
-        char* decoded_inst = decode_instruction(sv_from_cstr(inst));
-        fputs(decoded_inst,writing_file);
-        free(decoded_inst);
+        Err err = decode_instruction(sv_from_cstr(inst),writing_file);
+        if(err != ERR_OK)
+        {
+            fclose(writing_file);
+            fclose(fopen("temp.dasm", "w"));
+            fclose(reading_file);
+            
+            return (err_t) {.codeRow = codeRow, .error = err};
+        }
+        codeRow++;
     }
   
     fclose(reading_file);
     fclose(writing_file);
-
-    return ERR_OK;
+    return (err_t) {.codeRow = -1, .error = ERR_OK};
 }
 
 #endif // KODT IMPLEMENTATION
