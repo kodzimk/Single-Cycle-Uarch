@@ -3,6 +3,8 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include<assert.h>
+#include<stdbool.h>
 
 typedef enum {
     ERR_OK = 0,
