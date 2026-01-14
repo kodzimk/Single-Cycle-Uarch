@@ -19,6 +19,7 @@ String_View sv_trim_left(String_View sv);
 String_View sv_trim_right(String_View sv);
 String_View sv_trim(String_View sv);
 String_View sv_chop_by_delim(String_View *sv, char delim);
+String_View sv_chop_by_index(String_View *sv, int start, int end);
 bool sv_eq(String_View a, String_View b);
 
 String_View sv_from_cstr(const char *cstr)
@@ -44,6 +45,7 @@ String_View sv_trim_left(String_View sv)
     return view;
 }
 
+
 String_View sv_trim_right(String_View sv)
 {
     size_t i = 0;
@@ -67,6 +69,28 @@ String_View sv_chop_by_delim(String_View *sv, char delim)
 {
     size_t i = 0;
     while (i < sv->count && sv->data[i] != delim) {
+        i += 1;
+    }
+
+    String_View result;
+    result.count = i;
+    result.data = sv->data;
+
+    if (i < sv->count) {
+        sv->count -= i + 1;
+        sv->data  += i + 1;
+    } else {
+        sv->count -= i;
+        sv->data  += i;
+    }
+
+    return result;
+}
+
+String_View sv_chop_by_index(String_View *sv, int start, int end)
+{
+    size_t i = start;
+    while (i < sv->count && i != end) {
         i += 1;
     }
 
