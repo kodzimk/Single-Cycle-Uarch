@@ -18,7 +18,7 @@ typedef struct
 int8_t dest_to_addr(String_View view)
 {
     int8_t addr = 0;
-    for(int i = view.count - 1;i >= 0;i--)
+    for(int i = (int)(view.count - 1);i >= 0 ;i--)
     {
         if(view.data[i] == '1')
             addr += pow(2, 4 - i);

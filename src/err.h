@@ -13,6 +13,7 @@ typedef enum {
     ERR_IMMIDIATE_OVERFLOW,
     ERR_UNKOWN_OPCODE,
     ERR_RUNTIME_ERROR,
+    ERR_INCORRECT_FILE_PATH,
 } Err;
 
 const char *err_as_cstr(Err err);
@@ -32,6 +33,8 @@ const char *err_as_cstr(Err err)
         return "ERR_UNKOWN_OPCODE";
     case ERR_RUNTIME_ERROR:
         return "ERR_RUNTIME_ERROR";
+    case ERR_INCORRECT_FILE_PATH:
+        return "ERR_INCORRECT_FILE_PATH";
 
     default:
         assert(false && "err_as_cstr: Unreachable");

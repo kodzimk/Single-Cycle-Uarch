@@ -140,7 +140,14 @@ FILE* open_file(const char* file_name)
 err_t translate_file(const char* reading_file_path,const char* writing_file_path)
 {
     FILE* reading_file = load_file(reading_file_path);
+    if(reading_file == NULL)
+        return (err_t) {.codeRow = -1, .error = ERR_INCORRECT_FILE_PATH};
+
     FILE* writing_file = open_file(writing_file_path);
+    if(writing_file == NULL)
+        return (err_t) {.codeRow = -1, .error = ERR_INCORRECT_FILE_PATH};
+
+
     char inst[INST_LENGTH];
     int codeRow = 1;
 

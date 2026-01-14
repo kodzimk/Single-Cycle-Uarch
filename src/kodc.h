@@ -140,6 +140,9 @@ Err execute(const char* binary_file_path)
 {
     data_t data = { .RegSecondValue = 0,.RegOneValue = 0, .immidiate = 0, .RegDest1 = sv_from_cstr(""), .RegDest2 = sv_from_cstr("") };
     FILE* file = load_file(binary_file_path);
+    if(file == NULL)
+        return ERR_INCORRECT_FILE_PATH;
+        
     char inst[INST_BITS];
     uint64_t pc = 1;
     file_t register_file;
